@@ -43,17 +43,16 @@ app.get('/', async (req, res) => {
       const existingChatIdChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId });
       if (existingChatIdChatInstancesDocument) {
         const newDocument = {
+        _id: chatId,
         ...req.query
         };
         delete newDocument.chatId;
         // If the chatId matches but the userId is different, insert the document with the new userId in the chatInstancesI collection
-        const result = await chatInstancesICollection.insertOne({ _id: chatId, newDocument });
-        console.log(`New document added to the chatInstancesI collection with ID: ${result.insertedId}`);
+        const result = await chatInstancesICollection.insertOne(newDocument);
         res.status(200).json({ message: 'New document added to the chatInstancesI collection' });
       } else {
         // If both chatId and userId don't match, insert a new document in the chatInstances collection
-        const result = await chatInstancesCollection.insertOne({ _id: chatId, newDocument });
-        console.log(`New document added to the chatInstances collection with ID: ${result.insertedId}`);
+        const result = await chatInstancesCollection.insertOne(newDocument);
         res.status(200).json({ message: 'New document added to the chatInstances collection' });
       }
     }
