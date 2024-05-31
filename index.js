@@ -26,13 +26,17 @@ app.get('/', async (req, res) => {
     // Get a reference to the collection you want to use
     const collection = client.db("TelegramGm").collection("chatInstances");
 
-    // Create a new document to add to the collection using the query parameters
+    // Extract the chatId from the query parameters
+    const chatId = req.query.chatId;
+
+    // Create a new document to add to the collection using the query parameters, excluding the chatId
     const newDocument = {
       ...req.query
     };
+    delete newDocument.chatId;
 
     // Insert the new document into the collection
-    const result = await collection.insertOne(newDocument);
+    const result = await collection.insertOne({ _id: chatId, ...newDocument });
     console.log(`New document added with ID: ${result.insertedId}`);
 
     res.status(200).json({ message: 'Request parameters saved to MongoDB' });
