@@ -1,45 +1,26 @@
-const TelegramBot = require('node-telegram-bot-api');
 
-// replace the value below with the Telegram token you receive from @BotFather
-const token = '6490722237:AAGJnP02P_WrJAHTPa_7ChO2dcB-NvrD4oo';
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const uri = "mongodb+srv://YohanzTg:Kidistmariam@cluster0.esrh3ji.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
-// Create a bot that uses 'polling' to fetch new updates
-const bot = new TelegramBot(token, {polling: true});
-
-// Matches "/echo [whatever]"
-
-bot.onText(/\/start/, (msg) => {
-  const chatId = msg.chat.id;
-  bot.sendMessage(chatId, 'Welcome to my bot!');
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
 });
 
-bot.on('inline_query', (query) => {
-  const queryId = query.id;
-  const queryText = query.query;
-
-  // Process the inline query and generate results
-
-  // Create an array of InlineQueryResult objects
-  const results = [
-    {
-      type: 'article',
-      id: '1',
-      title: 'Result 1',
-      input_message_content: {
-        message_text: queryText
-      }
-    },
-    {
-      type: 'article',
-      id: '2',
-      title: 'Result 2',
-      input_message_content: {
-        message_text: 'This is result 2'
-      }
-    }
-  ];
-  bot.answerInlineQuery(queryId, results);
-});
-
- 
-   
+async function run() {
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+    // Send a ping to confirm a successful connection
+    await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+}
+run().catch(console.dir);
