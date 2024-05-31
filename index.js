@@ -10,7 +10,7 @@ const client = new MongoClient(uri, {
   }
 });
 
-exports.handler = async (event, context) => {
+async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
@@ -31,4 +31,8 @@ exports.handler = async (event, context) => {
     // Ensures that the client will close when you finish/error
     await client.close();
   }
+}
+
+exports.handler = async (event, context) => {
+  return await run();
 };
