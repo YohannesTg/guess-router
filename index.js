@@ -32,7 +32,7 @@ app.get('/', async (req, res) => {
     const userId = req.query.userId;
 
     // Check if a document with the same chatId and userId already exists in the chatInstances collection
-    const existingChatInstancesDocument = await chatInstancesCollection.findOne({ chatId, userId });
+    const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: userId });
 
     if (existingChatInstancesDocument) {
       // If both chatId and userId match, leave the document as it is
@@ -40,15 +40,19 @@ app.get('/', async (req, res) => {
       res.status(200).json({ message: 'Document already exists in the chatInstances collection' });
     } else {
       // Check if a document with the same chatId but different userId exists in the chatInstances collection
-      const existingChatIdChatInstancesDocument = await chatInstancesCollection.findOne({ chatId });
+      const existingChatIdChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId });
       if (existingChatIdChatInstancesDocument) {
+        const newDocument = {
+        ...req.query
+        };
+        delete newDocument.chatId;
         // If the chatId matches but the userId is different, insert the document with the new userId in the chatInstancesI collection
-        const result = await chatInstancesICollection.insertOne({ chatId, userId, ...req.query });
+        const result = await chatInstancesICollection.insertOne({ _id: chatId, newDocument });
         console.log(`New document added to the chatInstancesI collection with ID: ${result.insertedId}`);
         res.status(200).json({ message: 'New document added to the chatInstancesI collection' });
       } else {
         // If both chatId and userId don't match, insert a new document in the chatInstances collection
-        const result = await chatInstancesCollection.insertOne({ chatId, userId, ...req.query });
+        const result = await chatInstancesCollection.insertOne({ _id: chatId, newDocument });
         console.log(`New document added to the chatInstances collection with ID: ${result.insertedId}`);
         res.status(200).json({ message: 'New document added to the chatInstances collection' });
       }
