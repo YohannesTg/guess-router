@@ -15,7 +15,10 @@ const client = new MongoClient(uri, {
   }
 });
 
-app.get('/', async (req, res) => {
+// Add middleware to parse the request body
+app.use(express.json());
+
+app.post('/submit-data', async (req, res) => {
   try {
     // Connect the client to the server (optional starting in v4.7)
     await client.connect();
@@ -27,9 +30,8 @@ app.get('/', async (req, res) => {
     const chatInstancesCollection = client.db("TelegramGm").collection("chatInstances");
     const chatInstancesICollection = client.db("TelegramGm").collection("chatInstancesI");
 
-    // Extract the chatId and userId from the query parameters
-    const chatId = req.query.chatId;
-    const userId = req.query.userId;
+    // Extract the chatId, userId, and inputValue from the request body
+    const { chatId, userId, inputValue } = req.body;
 
     // Check if a document with the same chatId and userId already exists in the chatInstances collection
     const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: userId });
@@ -44,19 +46,19 @@ app.get('/', async (req, res) => {
       if (existingChatIdChatInstancesDocument) {
         const newDocument = {
           _id: chatId,
-          ...req.query
+          userId,
+          inputValue
         };
-        delete newDocument.chatId;
-        // If the chatId matches but the userId is different, insert the document with the new userId in the chatInstancesI collection
+        // If the chatId matches but the userId is different, insert the document with the new userId and inputValue in the chatInstancesI collection
         const result = await chatInstancesICollection.insertOne(newDocument);
         res.status(200).json({ message: 'New document added to the chatInstancesI collection' });
       } else {
         // If both chatId and userId don't match, insert a new document in the chatInstances collection
         const newDocument = {
           _id: chatId,
-          ...req.query
+          userId,
+          inputValue
         };
-        delete newDocument.chatId;
         const result = await chatInstancesCollection.insertOne(newDocument);
         res.status(200).json({ message: 'New document added to the chatInstances collection' });
       }
