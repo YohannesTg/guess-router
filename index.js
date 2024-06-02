@@ -53,15 +53,14 @@ app.get('/submit-data', async (req, res) => {
       res.status(200).json({ message: 'Document already exists in the chatInstances collection' });
     } else {
       // Check if a document with the same chatId but different userId exists in the chatInstances collection
-      const existingChatIdChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId });
-      if (existingChatIdChatInstancesDocument) {
-        const newDocument = {
-          _id: chatId,
-          userId,
-          inputValue
-        };
-        // If the chatId matches but the userId is different, insert the document with the new userId and inputValue in the chatInstancesI collection
-        const result = await chatInstancesICollection.insertOne(newDocument);
+      const existingChatIdChatInstancesDocument = await chatInstancesICollection.findOne({ _id: chatId });
+      if (existingChatChatInstancesIDocument) {
+          const existingChatInstancesDocument = await chatInstancesCollection.findOneAndUpdate(
+          { _id: chatId, userId },
+          { $set: { inputValue: inputValue} },
+          { returnDocument: 'after' }
+          );
+
         res.status(200).json({ message: 'New document added to the chatInstancesI collection' });
       } else {
         // If both chatId and userId don't match, insert a new document in the chatInstances collection
@@ -70,7 +69,7 @@ app.get('/submit-data', async (req, res) => {
           userId,
           inputValue
         };
-        const result = await chatInstancesCollection.insertOne(newDocument);
+        const result = await chatInstancesICollection.insertOne(newDocument);
         res.status(200).json({ message: 'New document added to the chatInstances collection' });
       }
     }
