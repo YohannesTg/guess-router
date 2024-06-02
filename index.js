@@ -18,7 +18,7 @@ const client = new MongoClient(uri, {
 // Add middleware to parse the request body
 app.use(express.json());
 
-app.post('/submit-data', async (req, res) => {
+app.get('/submit-data', async (req, res) => {
   try {
     // Connect the client to the server (optional starting in v4.7)
     await client.connect();
@@ -30,8 +30,8 @@ app.post('/submit-data', async (req, res) => {
     const chatInstancesCollection = client.db("TelegramGm").collection("chatInstances");
     const chatInstancesICollection = client.db("TelegramGm").collection("chatInstancesI");
 
-    // Extract the chatId, userId, and inputValue from the request body
-    const { chatId, userId, inputValue } = req.body;
+    // Extract the chatId, userId, and inputValue from the request query parameters
+    const { chatId, userId, inputValue } = req.query;
 
     // Check if a document with the same chatId and userId already exists in the chatInstances collection
     const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: userId });
