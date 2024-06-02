@@ -72,6 +72,62 @@ app.get('/submit-data', async (req, res) => {
   }
 });
 
+app.get('/check', async (req, res) => {
+  try {
+    // Connect the client to the server (optional starting in v4.7)
+    await client.connect();
+
+    // Get a reference to the collections
+    const chatInstancesCollection = client.db("TelegramGm").collection("chatInstances");
+    const chatInstancesICollection = client.db("TelegramGm").collection("chatInstancesI");
+
+    // Extract the chatId, userId, and guess from the request query parameters
+    const { chatId, userId, guess } = req.query;
+
+    // Check if a document with the given chatId and userId exists in the chatInstances collection
+    const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: userId });
+
+    let inputValue;
+    if (existingChatInstancesDocument) {
+      // If the document exists in the chatInstances collection, get the inputValue
+      inputValue = existingChatInstancesDocument.inputValue;
+    } else {
+      // Check if a document with the given chatId and userId exists in the chatInstancesI collection
+      const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId: userId });
+
+      if (existingChatInstancesIDocument) {
+        // If the document exists in the chatInstancesI collection, get the inputValue
+        inputValue = existingChatInstancesIDocument.inputValue;
+      } else {
+        // If the document doesn't exist in either collection, return an error
+        res.status(404).json({ message: 'Document not found' });
+        return;
+      }
+    }
+
+    let Number = 0;
+    let Order = 0;
+    for (let i = 0; i < inputValue.length; i++) {
+      for (let j = 0; j < guess.length; j++) {
+        if (i === j && guess[j] === inputValue[i]) {
+          Order++;
+        }
+        if (guess[j] === inputValue[i]) {
+          Number++;
+        }
+      }
+    }
+
+    res.status(200).json({ Number, Order });
+  } catch (err) {
+    console.error('Error processing request:', err);
+    res.status(500).json({ message: 'Error processing request' });
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
