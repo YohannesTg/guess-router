@@ -44,6 +44,11 @@ app.get('/submit-data', async (req, res) => {
 
     if (existingChatInstancesDocument) {
       // If both chatId and userId match, leave the document as it is
+      const existingChatInstancesDocument = await chatInstancesCollection.findOneAndUpdate(
+      { _id: chatId, userId },
+      { $set: { inputValue: inputValue} },
+      { returnDocument: 'after' }
+      );
       console.log(`Document with chatId ${chatId} and userId ${userId} already exists in the chatInstances collection.`);
       res.status(200).json({ message: 'Document already exists in the chatInstances collection' });
     } else {
