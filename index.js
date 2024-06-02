@@ -91,7 +91,7 @@ app.get('/check', async (req, res) => {
     const { chatId, userId, guess } = req.query;
 
     // Check if a document with the given chatId and userId exists in the chatInstances collection
-    const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: userId });
+    const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: { $ne: userId } });
 
     let inputValue;
     if (existingChatInstancesDocument) {
@@ -99,7 +99,7 @@ app.get('/check', async (req, res) => {
       inputValue = existingChatInstancesDocument.inputValue;
     } else {
       // Check if a document with the given chatId and userId exists in the chatInstancesI collection
-      const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId: userId });
+      const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId: { $ne: userId } });
 
       if (existingChatInstancesIDocument) {
         // If the document exists in the chatInstancesI collection, get the inputValue
