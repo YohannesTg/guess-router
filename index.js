@@ -46,7 +46,7 @@ app.get('/submit-data', async (req, res) => {
       // If both chatId and userId match, update the existing document
       const updatedChatInstancesDocument = await chatInstancesCollection.findOneAndUpdate(
         { _id: chatId, userId },
-        { $set: { inputValue: inputValue} },
+        { $set: { "inputValue": inputValue} },
         { returnDocument: 'after' }
       );
       console.log(`Document with chatId ${chatId} and userId ${userId} already exists in the chatInstances collection.`);
