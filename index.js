@@ -45,7 +45,7 @@ app.get('/submit-data', async (req, res) => {
     if (existingChatInstancesDocument) {
       // If the document exists, update the existing document
       const updatedChatInstancesDocument = await chatInstancesCollection.findOneAndUpdate(
-        { _id: chatId, userId },
+        { _id: chatId, userId: userId },
         { $set: { "inputValue": inputValue} },
         { returnDocument: 'after' }
       );
