@@ -43,7 +43,7 @@ app.get('/submit-data', async (req, res) => {
     const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: userId });
 
     if (existingChatInstancesDocument) {
-      // If both chatId and userId match, update the existing document
+      // If the document exists, update the existing document
       const updatedChatInstancesDocument = await chatInstancesCollection.findOneAndUpdate(
         { _id: chatId, userId },
         { $set: { "inputValue": inputValue} },
@@ -52,9 +52,9 @@ app.get('/submit-data', async (req, res) => {
       console.log(`Document with chatId ${chatId} and userId ${userId} already exists in the chatInstances collection.`);
       res.status(200).json({ message: 'Document updated in the chatInstances collection' });
     } else {
-      // Check if a document with the same chatId but different userId exists in the chatInstances collection
-      const existingChatIdChatInstancesDocument = await chatInstancesICollection.findOne({ _id: chatId });
-      if (existingChatIdChatInstancesDocument) {
+      // Check if a document with the same chatId but different userId exists in the chatInstancesI collection
+      const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId });
+      if (existingChatInstancesIDocument) {
         // Update the existing document in the chatInstances collection
         const updatedChatInstancesDocument = await chatInstancesCollection.findOneAndUpdate(
           { _id: chatId, userId },
