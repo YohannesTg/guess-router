@@ -41,7 +41,7 @@ app.get('/submit-data', async (req, res) => {
 
     // Check if a document with the same chatId and userId already exists in the chatInstances collection
     const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: userId });
-    if (existingChatInstancesDocument && existingChatInstancesDocument.inputValue=='') {
+    if (existingChatInstancesDocument && existingChatInstancesDocument.inputValue === '') {
       // If the document exists, update the existing document
       const updatedChatInstancesDocument = await chatInstancesCollection.findOneAndUpdate(
         { _id: chatId, userId: userId },
@@ -52,48 +52,23 @@ app.get('/submit-data', async (req, res) => {
       res.status(200).json({ message: 'Document updated in the chatInstances collection' });
     } else {
       // Check if a document with the same chatId but different userId exists in the chatInstancesI collection
-      const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId: userId });
-      if (existingChatInstancesIDocument  && existingChatInstancesIDocument.inputValue=='') {
-        // Update the existing document in the chatInstances collection
+      const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId: { $ne: userId } });
+      if (existingChatInstancesIDocument && existingChatInstancesIDocument.inputValue === '') {
+        // Update the existing document in the chatInstancesI collection
         const updatedChatInstancesDocument = await chatInstancesICollection.findOneAndUpdate(
-          { _id: chatId, userId: userId },
+          { _id: chatId, userId: { $ne: userId } },
           { $set: { 'inputValue': inputValue } },
           { returnDocument: 'after' }
         );
-        res.status(200).json({ message: 'New document added to the chatInstances collection' });
+        res.status(200).json({ message: 'New document added to the chatInstancesI collection' });
       } else {
         // Insert a new document in the chatInstancesI collection
-        const existingChatIdDocument = await chatInstancesCollection.findOne({ _id: chatId });
-        const existingChatIdIDocument = await chatInstancesICollection.findOne({ _id: chatId });
-
-        if (existingChatIdDocument) {
-          if (existingChatIdIDocument) {
-          } else {
-            const newDocument = {
-              _id: chatId,
-              userId,
-              inputValue
-            };
-            const result = await chatInstancesICollection.insertOne(newDocument);
-          }
-        } else {
-          if (existingChatIdIDocument) {
-            const newDocument = {
-              _id: chatId,
-              userId,
-              inputValue
-            };
-            const result = await chatInstancesCollection.insertOne(newDocument);
-          } else {
-            const newDocument = {
-              _id: chatId,
-              userId,
-              inputValue
-            };
-            const result = await chatInstancesICollection.insertOne(newDocument);
-          }
-        }
-
+        const newDocument = {
+          _id: chatId,
+          userId,
+          inputValue
+        };
+        const result = await chatInstancesICollection.insertOne(newDocument);
         res.status(200).json({ message: 'New document added to the chatInstancesI collection' });
       }
     }
