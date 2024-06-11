@@ -48,7 +48,6 @@ app.get('/submit-data', async (req, res) => {
         { $set: { 'inputValue': inputValue } },
         { returnDocument: 'after' }
       );
-    }
       console.log(`Document with chatId ${chatId} and userId ${userId} already exists in the chatInstances collection.`);
       res.status(200).json({ message: 'Document updated in the chatInstances collection' });
     } else {
