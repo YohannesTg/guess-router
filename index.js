@@ -24,6 +24,28 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/opponent', async (req, res) => {
+  try {
+    await client.connect();
+    const chatInstancesCollection = client.db("TelegramGm").collection("chatInstances");
+    const chatInstancesICollection = client.db("TelegramGm").collection("chatInstancesI");
+    const { chatId, userId } = req.query;
+    const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: { $ne: userId } });
+    if (existingChatInstancesDocument) {
+      res.status(200).json({ userName: existingChatInstancesDocument.userName });
+    } else {
+      const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId: { $ne: userId } });
+      res.status(200).json({ userName: existingChatInstancesIDocument.userName });
+    }
+  } catch (err) {
+    console.error('Error processing request:', err);
+    res.status(500).json({ message: 'Error processing request' });
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+});
+
 app.get('/submit-data', async (req, res) => {
   try {
     // Connect the client to the server (optional starting in v4.7)
@@ -37,7 +59,7 @@ app.get('/submit-data', async (req, res) => {
     const chatInstancesICollection = client.db("TelegramGm").collection("chatInstancesI");
 
     // Extract the chatId, userId, and inputValue from the request query parameters
-    const { chatId, userId, inputValue } = req.query;
+    const { chatId, userId, userName, inputValue } = req.query;
 
     // Check if a document with the same chatId and userId already exists in the chatInstances collection
     const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: userId });
@@ -66,6 +88,7 @@ app.get('/submit-data', async (req, res) => {
         const newDocument = {
           _id: chatId,
           userId,
+          userName,
           inputValue
         };
         const result = await chatInstancesICollection.insertOne(newDocument);
@@ -142,8 +165,4 @@ app.get('/check', async (req, res) => {
     // Ensures that the client will close when you finish/error
     await client.close();
   }
-});
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
 });
