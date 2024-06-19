@@ -30,11 +30,11 @@ app.get('/opponent', async (req, res) => {
     const chatInstancesCollection = client.db("TelegramGm").collection("chatInstances");
     const chatInstancesICollection = client.db("TelegramGm").collection("chatInstancesI");
     const { chatId, userId } = req.query;
-    const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: { $ne: userId } });
+    const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: userId  });
     if (existingChatInstancesDocument) {
       res.status(200).json({ userName: existingChatInstancesDocument.userName });
     } else {
-      const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId: { $ne: userId } });
+      const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId:  userId });
       res.status(200).json({ userName: existingChatInstancesIDocument.userName });
     }
   } catch (err) {
@@ -74,11 +74,11 @@ app.get('/submit-data', async (req, res) => {
       res.status(200).json({ message: 'Document updated in the chatInstances collection' });
     } else {
       // Check if a document with the same chatId but different userId exists in the chatInstancesI collection
-      const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId: { $ne: userId } });
+      const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId: userId  });
       if (existingChatInstancesIDocument && existingChatInstancesIDocument.inputValue === '') {
         // Update the existing document in the chatInstancesI collection
         const updatedChatInstancesDocument = await chatInstancesICollection.findOneAndUpdate(
-          { _id: chatId, userId: { $ne: userId } },
+          { _id: chatId, userId: userId  },
           { $set: { 'inputValue': inputValue } },
           { returnDocument: 'after' }
         );
