@@ -30,11 +30,11 @@ app.get('/opponent', async (req, res) => {
     const chatInstancesCollection = client.db("TelegramGm").collection("chatInstances");
     const chatInstancesICollection = client.db("TelegramGm").collection("chatInstancesI");
     const { chatId, userId } = req.query;
-    const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: userId  });
+    const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: {$ne: userId } });
     if (existingChatInstancesDocument) {
       res.status(200).json({ userName: existingChatInstancesDocument.userName });
     } else {
-      const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId:  userId });
+      const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId:  {$ne: userId } });
       res.status(200).json({ userName: existingChatInstancesIDocument.userName });
     }
   } catch (err) {
