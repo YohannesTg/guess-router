@@ -27,6 +27,8 @@ app.use((req, res, next) => {
 app.get('/opponent', async (req, res) => {
   try {
     await client.connect();
+    await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
     const chatInstancesCollection = client.db("TelegramGm").collection("chatInstances");
     const chatInstancesICollection = client.db("TelegramGm").collection("chatInstancesI");
     const { chatId, userId } = req.query;
