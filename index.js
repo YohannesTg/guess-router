@@ -168,3 +168,6 @@ app.get('/check', async (req, res) => {
     await client.close();
   }
 });
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
