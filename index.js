@@ -93,7 +93,13 @@ app.get('/submit-data', async (req, res) => {
           userName,
           inputValue
         };
+        const existingChatInstancesIDocumentChatID = await chatInstancesICollection.findOne({ _id: chatId });
+        if(existingChatInstancesIDocumentChatID){
+          const result = await chatInstancesCollection.insertOne(newDocument);
+        }
+        else {
         const result = await chatInstancesICollection.insertOne(newDocument);
+        }
         res.status(200).json({ message: 'New document added to the chatInstancesI collection' });
       }
     }
