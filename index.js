@@ -91,7 +91,7 @@ app.get('/submit-data', async (req, res) => {
           _id: chatId,
           userId,
           userName,
-          Score: "0".
+          Score: "0",
           Trial: "0"
           inputValue
         };
