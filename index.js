@@ -177,8 +177,8 @@ app.get('/check', async (req, res) => {
       await chatInstancesCollection.updateOne({ _id: chatId }, { $set: { inputValue: '' } });
       await chatInstancesICollection.updateOne({ _id: chatId }, { $set: { inputValue: '' } });
     }
-    let score1=existingChatInstancesDocumentw.Score
-    let score2=existingChatInstancesIDocumentw.Score
+    let score1 = existingChatInstancesDocumentw?.Score || 0;
+    let score2 = existingChatInstancesIDocumentw?.Score || 0;
     res.status(200).json({ number, order, trial, score1, score2 });
   } catch (err) {
     console.error('Error processing request:', err);
