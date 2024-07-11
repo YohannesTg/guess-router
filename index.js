@@ -161,22 +161,22 @@ app.get('/check', async (req, res) => {
     }
     let trial;
     let score;
-    const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: userId });
-    const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId: userId });
+    const existingChatInstancesDocumentw = await chatInstancesCollection.findOne({ _id: chatId, userId: userId });
+    const existingChatInstancesIDocumentw = await chatInstancesICollection.findOne({ _id: chatId, userId: userId });
     // Check if both order and number are 4
-     trial=(existingChatInstancesDocument.Trial||existingChatInstancesIDocument.Trial) + 1
+     trial=(existingChatInstancesDocumentw.Trial||existingChatInstancesIDocumentw.Trial) + 1
     if (Order === 4 && Number === 4) {
       // Delete the input value from both collections
       
-      if(existingChatInstancesDocument){
+      if(existingChatInstancesDocumentw){
       
-       score=existingChatInstancesDocument.Score + 1
+       score=existingChatInstancesDocumentw.Score + 1
        await chatInstancesCollection.updateOne({ _id: chatId, userId: userId}, { $set: { Score: score, Trial: trial } });
         
       }else{
 
-        if(existingChatInstancesIDocument){
-          score=existingChatInstancesIDocument.Score + 1
+        if(existingChatInstancesIDocumentw){
+          score=existingChatInstancesIDocumentw.Score + 1
           await chatInstancesICollection.updateOne({ _id: chatId, userId: userId}, { $set: { Score: score, Trial: trial } })
         }
       }
