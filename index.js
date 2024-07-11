@@ -127,6 +127,7 @@ app.get('/check', async (req, res) => {
 
     // Check if a document with the given chatId and userId exists in the chatInstances collection
     const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: { $ne: userId } });
+    const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId: { $ne: userId } });
 
     let inputValue;
     if (existingChatInstancesDocument) {
@@ -134,7 +135,7 @@ app.get('/check', async (req, res) => {
       inputValue = existingChatInstancesDocument.inputValue;
     } else {
       // Check if a document with the given chatId and userId exists in the chatInstancesI collection
-      const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId: { $ne: userId } });
+      
 
       if (existingChatInstancesIDocument) {
         // If the document exists in the chatInstancesI collection, get the inputValue
@@ -179,7 +180,8 @@ app.get('/check', async (req, res) => {
     }
     let score1 = existingChatInstancesDocumentw?.Score || 0;
     let score2 = existingChatInstancesIDocumentw?.Score || 0;
-    res.status(200).json({ number, order, trial, score1, score2 });
+    let trial2= existingChatInstancesDocument.Trial || existingChatInstancesIDocument.Trial || 0;
+    res.status(200).json({ number, order, trial2, score1, score2 });
   } catch (err) {
     console.error('Error processing request:', err);
     res.status(500).json({ message: 'Error processing request' });
