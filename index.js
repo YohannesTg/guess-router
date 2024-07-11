@@ -113,7 +113,6 @@ app.get('/submit-data', async (req, res) => {
     await client.close();
   }
 });
-
 app.get('/check', async (req, res) => {
   try {
     // Connect the client to the server (optional starting in v4.7)
@@ -147,15 +146,15 @@ app.get('/check', async (req, res) => {
       }
     }
 
-    let Number = 0;
-    let Order = 0;
+    let number = 0;
+    let order = 0;
     for (let i = 0; i < inputValue.length; i++) {
       for (let j = 0; j < guess.length; j++) {
         if (i === j && guess[j] === inputValue[i]) {
-          Order++;
+          order++;
         }
         if (guess[j] === inputValue[i]) {
-          Number++;
+          number++;
         }
       }
     }
@@ -164,28 +163,22 @@ app.get('/check', async (req, res) => {
     const existingChatInstancesDocumentw = await chatInstancesCollection.findOne({ _id: chatId, userId: userId });
     const existingChatInstancesIDocumentw = await chatInstancesICollection.findOne({ _id: chatId, userId: userId });
     // Check if both order and number are 4
-     trial=(existingChatInstancesDocumentw.Trial||existingChatInstancesIDocumentw.Trial) + 1
-    if (Order === 4 && Number === 4) {
+    trial = (existingChatInstancesDocumentw?.Trial || existingChatInstancesIDocumentw?.Trial) + 1;
+    if (order === 4 && number === 4) {
       // Delete the input value from both collections
-      
-      if(existingChatInstancesDocumentw){
-      
-       score=existingChatInstancesDocumentw.Score + 1
-       await chatInstancesCollection.updateOne({ _id: chatId, userId: userId}, { $set: { Score: score, Trial: trial } });
-        
-      }else{
-
-        if(existingChatInstancesIDocumentw){
-          score=existingChatInstancesIDocumentw.Score + 1
-          await chatInstancesICollection.updateOne({ _id: chatId, userId: userId}, { $set: { Score: score, Trial: trial } })
-        }
+      if (existingChatInstancesDocumentw) {
+        score = existingChatInstancesDocumentw.Score + 1;
+        await chatInstancesCollection.updateOne({ _id: chatId, userId: userId }, { $set: { Score: score, Trial: trial } });
+      } else if (existingChatInstancesIDocumentw) {
+        score = existingChatInstancesIDocumentw.Score + 1;
+        await chatInstancesICollection.updateOne({ _id: chatId, userId: userId }, { $set: { Score: score, Trial: trial } });
       }
 
       await chatInstancesCollection.updateOne({ _id: chatId }, { $set: { inputValue: '' } });
       await chatInstancesICollection.updateOne({ _id: chatId }, { $set: { inputValue: '' } });
     }
 
-    res.status(200).json({ Number, Order, trial, score });
+    res.status(200).json({ number, order, trial, score });
   } catch (err) {
     console.error('Error processing request:', err);
     res.status(500).json({ message: 'Error processing request' });
