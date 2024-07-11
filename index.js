@@ -92,7 +92,7 @@ app.get('/submit-data', async (req, res) => {
           userId,
           userName,
           Score: "0",
-          Trial: "0"
+          Trial: "0",
           inputValue
         };
         const existingChatInstancesIDocumentChatID = await chatInstancesICollection.findOne({ _id: chatId });
