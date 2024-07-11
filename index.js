@@ -183,7 +183,7 @@ app.get('/check', async (req, res) => {
       await chatInstancesICollection.updateOne({ _id: chatId }, { $set: { inputValue: '' } });
     }
 
-    res.status(200).json({ Number, Order. trial, score });
+    res.status(200).json({ Number, Order, trial, score });
   } catch (err) {
     console.error('Error processing request:', err);
     res.status(500).json({ message: 'Error processing request' });
