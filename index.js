@@ -164,7 +164,7 @@ app.get('/check', async (req, res) => {
     const existingChatInstancesDocumentw = await chatInstancesCollection.findOne({ _id: chatId, userId: userId });
     const existingChatInstancesIDocumentw = await chatInstancesICollection.findOne({ _id: chatId, userId: userId });
     // Check if both order and number are 4
-    trial = Number(existingChatInstancesDocumentw?.Trial || existingChatInstancesIDocumentw?.Trial) + 1;
+    trial = Number(existingChatInstancesDocumentw.Trial || existingChatInstancesIDocumentw.Trial) + 1;
     if (order === 4 && number === 4) {
       // Delete the input value from both collections
       if (existingChatInstancesDocumentw) {
@@ -178,8 +178,8 @@ app.get('/check', async (req, res) => {
       await chatInstancesCollection.updateOne({ _id: chatId }, { $set: { inputValue: '' } });
       await chatInstancesICollection.updateOne({ _id: chatId }, { $set: { inputValue: '' } });
     }
-    let score1 = existingChatInstancesDocumentw?.Score || 0;
-    let score2 = existingChatInstancesIDocumentw?.Score || 0;
+    let score1 = existingChatInstancesDocumentw.Score || 0;
+    let score2 = existingChatInstancesIDocumentw.Score || 0;
     let trial2= existingChatInstancesDocument.Trial || existingChatInstancesIDocument.Trial || 0;
     res.status(200).json({ number, order, trial2, score1, score2 });
   } catch (err) {
