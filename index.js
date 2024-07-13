@@ -92,7 +92,7 @@ app.get('/submit-data', async (req, res) => {
           userId,
           userName,
           Score: 0,
-          Trial: 0,
+          Trial: 1,
           inputValue
         };
         const existingChatInstancesIDocumentChatID = await chatInstancesICollection.findOne({ _id: chatId });
@@ -189,7 +189,7 @@ if (order === 4 && number === 4) {
 
 let score1 = existingChatInstancesDocumentw ? existingChatInstancesDocumentw.Score: 0;
 let score2 = existingChatInstancesIDocumentw ? existingChatInstancesIDocumentw.Score: 0;
-let trial2 = existingChatInstancesDocumentw?existingChatInstancesDocumentw.Trial: existingChatInstancesIDocumentw ? existingChatInstancesIDocumentw.Trial:0;
+let trial2 = existingChatInstancesDocument ?existingChatInstancesDocument.Trial: existingChatInstancesIDocument ? existingChatInstancesIDocument.Trial:0;
 res.status(200).json({ number, order, trial2, score1, score2 });
   } catch (err) {
     console.error('Error processing request:', err);
