@@ -167,8 +167,10 @@ const existingChatInstancesIDocumentw = await chatInstancesICollection.findOne({
 // Check if both order and number are 4
 if (existingChatInstancesDocumentw) {
     trial = existingChatInstancesDocumentw.Trial + 1;
+    await chatInstancesCollection.updateOne({ _id: chatId, userId: userId }, { $set: { Trial: trial} });
 } else if (existingChatInstancesIDocumentw) {
     trial = existingChatInstancesIDocumentw.Trial + 1;
+  await chatInstancesICollection.updateOne({ _id: chatId, userId: userId}, { $set: { Trial: trial } });
 } 
 
 if (order === 4 && number === 4) {
