@@ -185,9 +185,9 @@ if (order === 4 && number === 4) {
   await chatInstancesICollection.updateOne({ _id: chatId }, { $set: { inputValue: '' } });
 }
 
-let score1 = existingChatInstancesDocumentw.Score;
-let score2 = existingChatInstancesIDocumentw.Score;
-let trial2 = existingChatInstancesDocumentw.Trial || existingChatInstancesIDocumentw.Trial;
+let score1 = existingChatInstancesDocumentw ? existingChatInstancesDocumentw.Score: 0;
+let score2 = existingChatInstancesIDocumentw ? existingChatInstancesIDocumentw.Score: 0;
+let trial2 = existingChatInstancesDocumentw?existingChatInstancesDocumentw.Trial: existingChatInstancesIDocumentw?existingChatInstancesIDocumentw.Trial:0;
 res.status(200).json({ number, order, trial2, score1, score2 });
   } catch (err) {
     console.error('Error processing request:', err);
