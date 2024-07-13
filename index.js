@@ -175,19 +175,19 @@ if (order === 4 && number === 4) {
   // Delete the input value from both collections
   if (existingChatInstancesDocumentw) {
       score = existingChatInstancesDocumentw.Score + 1;
-    await chatInstancesCollection.updateOne({ _id: chatId, userId: userId }, { $set: { Score: score, Trial: trial } });
+    await chatInstancesCollection.updateOne({ _id: chatId, userId: userId }, { $set: { Score: score} });
   } else if (existingChatInstancesIDocumentw) {
       score = existingChatInstancesIDocumentw.Score + 1;
-    await chatInstancesICollection.updateOne({ _id: chatId, userId: userId }, { $set: { Score: score, Trial: trial } });
+    await chatInstancesICollection.updateOne({ _id: chatId, userId: userId}, { $set: { Score: score } });
   }
 
-  await chatInstancesCollection.updateOne({ _id: chatId }, { $set: { inputValue: '' } });
-  await chatInstancesICollection.updateOne({ _id: chatId }, { $set: { inputValue: '' } });
+  await chatInstancesCollection.updateOne({ _id: chatId }, { $set: { Trial: 0 , inputValue: '' } });
+  await chatInstancesICollection.updateOne({ _id: chatId }, { $set: { Trial: 0 , inputValue: '' } });
 }
 
 let score1 = existingChatInstancesDocumentw ? existingChatInstancesDocumentw.Score: 0;
 let score2 = existingChatInstancesIDocumentw ? existingChatInstancesIDocumentw.Score: 0;
-let trial2 = existingChatInstancesDocumentw?existingChatInstancesDocumentw.Trial: existingChatInstancesIDocumentw?existingChatInstancesIDocumentw.Trial:0;
+let trial2 = existingChatInstancesDocumentw?existingChatInstancesDocumentw.Trial: existingChatInstancesIDocumentw ? existingChatInstancesIDocumentw.Trial:0;
 res.status(200).json({ number, order, trial2, score1, score2 });
   } catch (err) {
     console.error('Error processing request:', err);
