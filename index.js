@@ -91,8 +91,8 @@ app.get('/submit-data', async (req, res) => {
           _id: chatId,
           userId,
           userName,
-          Score: "0",
-          Trial: "0",
+          Score: 0,
+          Trial: 0,
           inputValue
         };
         const existingChatInstancesIDocumentChatID = await chatInstancesICollection.findOne({ _id: chatId });
@@ -166,36 +166,18 @@ const existingChatInstancesIDocumentw = await chatInstancesICollection.findOne({
 
 // Check if both order and number are 4
 if (existingChatInstancesDocumentw) {
-  if (existingChatInstancesDocumentw.Trial) {
-    trial = Number(existingChatInstancesDocumentw.Trial) + 1;
-  } else {
-    trial = 1;
-  }
+    trial = existingChatInstancesDocumentw.Trial + 1;
 } else if (existingChatInstancesIDocumentw) {
-  if (existingChatInstancesIDocumentw.Trial) {
-    trial = Number(existingChatInstancesIDocumentw.Trial) + 1;
-  } else {
-    trial = 1;
-  }
-} else {
-  trial = 1;
-}
+    trial = existingChatInstancesIDocumentw.Trial + 1;
+} 
 
 if (order === 4 && number === 4) {
   // Delete the input value from both collections
   if (existingChatInstancesDocumentw) {
-    if (existingChatInstancesDocumentw.Score) {
       score = existingChatInstancesDocumentw.Score + 1;
-    } else {
-      score = 1;
-    }
     await chatInstancesCollection.updateOne({ _id: chatId, userId: userId }, { $set: { Score: score, Trial: trial } });
   } else if (existingChatInstancesIDocumentw) {
-    if (existingChatInstancesIDocumentw.Score) {
       score = existingChatInstancesIDocumentw.Score + 1;
-    } else {
-      score = 1;
-    }
     await chatInstancesICollection.updateOne({ _id: chatId, userId: userId }, { $set: { Score: score, Trial: trial } });
   }
 
@@ -203,9 +185,9 @@ if (order === 4 && number === 4) {
   await chatInstancesICollection.updateOne({ _id: chatId }, { $set: { inputValue: '' } });
 }
 
-let score1 = existingChatInstancesDocumentw?.Score || 0;
-let score2 = existingChatInstancesIDocumentw?.Score || 0;
-let trial2 = existingChatInstancesDocumentw?.Trial || existingChatInstancesIDocumentw?.Trial || 0;
+let score1 = existingChatInstancesDocumentw.Score;
+let score2 = existingChatInstancesIDocumentw.Score;
+let trial2 = existingChatInstancesDocumentw.Trial || existingChatInstancesIDocumentw.Trial;
 res.status(200).json({ number, order, trial2, score1, score2 });
   } catch (err) {
     console.error('Error processing request:', err);
