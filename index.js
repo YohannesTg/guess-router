@@ -164,6 +164,12 @@ app.get('/check', async (req, res) => {
     const existingChatInstancesDocumentw = await chatInstancesCollection.findOne({ _id: chatId, userId: userId });
     const existingChatInstancesIDocumentw = await chatInstancesICollection.findOne({ _id: chatId, userId: userId });
     // Check if both order and number are 4
+    if(existingChatInstancesDocumentw){
+      trial=Number(existingChatInstancesDocumentw.Trial)+1
+    }else if(existingChatInstancesIDocumentw){
+      trial=Number(existingChatInstancesIDocumentw.Trial)+1
+    }
+    
     trial = Number(existingChatInstancesDocumentw.Trial? existingChatInstancesDocumentw.Trial: existingChatInstancesIDocumentw.Trial) + 1;
     if (order === 4 && number === 4) {
       // Delete the input value from both collections
