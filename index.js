@@ -52,6 +52,7 @@ app.get('/opponent', async (req, res) => {
 app.get('/submit-data', async (req, res) => {
   try {
     const { chatId, userId, userName, inputValue } = req.query;
+    await client.connect();
     const chatInstances = client.db("TelegramGm").collection("chatInstances");
     const chatInstancesI = client.db("TelegramGm").collection("chatInstancesI");
 
