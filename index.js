@@ -67,22 +67,27 @@ app.get('/submit-data', async (req, res) => {
         // Case 1: Found document with non-empty input value
         res.status(200).json({ message: 'Game starter with previous input value', inputValue: existingDoc.inputValue });
       } else {
-        // Case 2: Found document with empty input value, update it
+        // Case 2: Found document with empty input value, update it using findOneAndUpdate
         if (existingDoc._id === chatId && existingDoc.userId === userId) {
           // Update the correct collection based on where the document was found
           if (existingDoc.inputValue === '') {
+            let updatedDoc;
             if (await chatInstances.findOne({ _id: chatId })) {
-              await chatInstances.updateOne(
+              // Use findOneAndUpdate in chatInstances collection
+              updatedDoc = await chatInstances.findOneAndUpdate(
                 { _id: chatId, userId },
-                { $set: { 'inputValue': inputValue } }
+                { $set: { 'inputValue': inputValue } },
+                { returnDocument: 'after' }
               );
             } else {
-              await chatInstancesI.updateOne(
+              // Use findOneAndUpdate in chatInstancesI collection
+              updatedDoc = await chatInstancesI.findOneAndUpdate(
                 { _id: chatId, userId },
-                { $set: { 'inputValue': inputValue } }
+                { $set: { 'inputValue': inputValue } },
+                { returnDocument: 'after' }
               );
             }
-            res.status(200).json({ message: 'Input value set' });
+            res.status(200).json({ message: 'Input value set', inputValue: updatedDoc.value.inputValue });
           }
         }
       }
@@ -107,6 +112,7 @@ app.get('/submit-data', async (req, res) => {
     res.status(500).json({ message: 'Error processing request' });
   }
 });
+
 
 
 
