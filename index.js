@@ -34,10 +34,10 @@ app.get('/opponent', async (req, res) => {
     const { chatId, userId } = req.query;
     const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: {$ne: userId } });
     if (existingChatInstancesDocument) {
-      res.status(200).json({ userName: existingChatInstancesDocument.userName });
+      res.status(200).json({ userName: existingChatInstancesIDocument.userName, Score: existingChatInstancesIDocument.Score, Trial: existingChatInstancesIDocument.Trial});
     } else {
       const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId:  {$ne: userId } });
-      res.status(200).json({ userName: existingChatInstancesIDocument.userName });
+      res.status(200).json({ userName: existingChatInstancesIDocument.userName, Score: existingChatInstancesIDocument.Score, Trial: existingChatInstancesIDocument.Trial });
     }
   } catch (err) {
     console.error('Error processing request:', err);
@@ -48,71 +48,38 @@ app.get('/opponent', async (req, res) => {
   }
 });
 
+// Route to handle data submission
 app.get('/submit-data', async (req, res) => {
   try {
-    // Connect the client to the server (optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-
-    // Get a reference to the collections
-    const chatInstancesCollection = client.db("TelegramGm").collection("chatInstances");
-    const chatInstancesICollection = client.db("TelegramGm").collection("chatInstancesI");
-
-    // Extract the chatId, userId, and inputValue from the request query parameters
     const { chatId, userId, userName, inputValue } = req.query;
+    const chatInstances = client.db("TelegramGm").collection("chatInstances");
+    const chatInstancesI = client.db("TelegramGm").collection("chatInstancesI");
 
-    // Check if a document with the same chatId and userId already exists in the chatInstances collection
-    const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: userId });
-    if (existingChatInstancesDocument && existingChatInstancesDocument.inputValue === '') {
-      // If the document exists, update the existing document
-      const updatedChatInstancesDocument = await chatInstancesCollection.findOneAndUpdate(
-        { _id: chatId, userId: userId },
-        { $set: { 'inputValue': inputValue } },
-        { returnDocument: 'after' }
-      );
-      console.log(`Document with chatId ${chatId} and userId ${userId} already exists in the chatInstances collection.`);
-      res.status(200).json({ message: 'Document updated in the chatInstances collection' });
-    } else {
-      // Check if a document with the same chatId but different userId exists in the chatInstancesI collection
-      const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId: userId  });
-      if (existingChatInstancesIDocument && existingChatInstancesIDocument.inputValue === '') {
-        // Update the existing document in the chatInstancesI collection
-        const updatedChatInstancesDocument = await chatInstancesICollection.findOneAndUpdate(
-          { _id: chatId, userId: userId  },
-          { $set: { 'inputValue': inputValue } },
-          { returnDocument: 'after' }
-        );
-        res.status(200).json({ message: 'New document added to the chatInstancesI collection' });
+    const existingDoc = await chatInstances.findOne({ _id: chatId, userId }) ||
+                        await chatInstancesI.findOne({ _id: chatId, userId });
+
+    if (existingDoc) {
+      if (existingDoc.inputValue !== '') {
+        // Case 1: Found document with non-empty input value
+        res.status(200).json({ message: 'Game starter with previous input value', inputValue: existingDoc.inputValue });
       } else {
-        // Insert a new document in the chatInstancesI collection
-        const newDocument = {
-          _id: chatId,
-          userId,
-          userName,
-          Score: 0,
-          Trial: 1,
-          inputValue
-        };
-        const existingChatInstancesIDocumentChatID = await chatInstancesICollection.findOne({ _id: chatId });
-        if(existingChatInstancesIDocumentChatID){
-          const result = await chatInstancesCollection.insertOne(newDocument);
-        }
-        else {
-        const result = await chatInstancesICollection.insertOne(newDocument);
-        }
-        res.status(200).json({ message: 'New document added to the chatInstancesI collection' });
+        // Case 2: Found document with empty input value, update it
+        await chatInstances.updateOne({ _id: chatId, userId }, { $set: { inputValue } }, { upsert: true });
+        await chatInstancesI.updateOne({ _id: chatId, userId }, { $set: { inputValue } }, { upsert: true });
+        res.status(200).json({ message: 'Input value set' });
       }
+    } else {
+      // Case 3: Document not found, create new one
+      const newDocument = { _id: chatId, userId, userName, Score: 0, Trial: 1, inputValue };
+      await chatInstancesI.insertOne(newDocument);
+      res.status(200).json({ message: 'New document created' });
     }
   } catch (err) {
     console.error('Error processing request:', err);
     res.status(500).json({ message: 'Error processing request' });
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
   }
 });
+
 app.get('/check', async (req, res) => {
   try {
     // Connect the client to the server (optional starting in v4.7)
