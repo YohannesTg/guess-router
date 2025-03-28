@@ -55,8 +55,11 @@ app.get('/submit-data', async (req, res) => {
     const chatInstances = client.db("TelegramGm").collection("chatInstances");
     const chatInstancesI = client.db("TelegramGm").collection("chatInstancesI");
 
-    const existingDoc = await chatInstances.findOne({ _id: chatId, userId }) ||
-                        await chatInstancesI.findOne({ _id: chatId, userId });
+    // Check if the document exists in either of the collections
+    let existingDoc = await chatInstances.findOne({ _id: chatId, userId });
+    if (!existingDoc) {
+      existingDoc = await chatInstancesI.findOne({ _id: chatId, userId });
+    }
 
     if (existingDoc) {
       if (existingDoc.inputValue !== '') {
@@ -64,14 +67,28 @@ app.get('/submit-data', async (req, res) => {
         res.status(200).json({ message: 'Game starter with previous input value', inputValue: existingDoc.inputValue });
       } else {
         // Case 2: Found document with empty input value, update it
-        await chatInstances.updateOne({ _id: chatId, userId }, { $set: { inputValue } }, { upsert: true });
-        await chatInstancesI.updateOne({ _id: chatId, userId }, { $set: { inputValue } }, { upsert: true });
-        res.status(200).json({ message: 'Input value set' });
+        if (existingDoc._id === chatId && existingDoc.userId === userId) {
+          // Update the correct collection based on where the document was found
+          if (existingDoc.inputValue === '') {
+            if (await chatInstances.findOne({ _id: chatId, userId })) {
+              await chatInstances.updateOne(
+                { _id: chatId, userId },
+                { $set: { 'inputValue': inputValue } }
+              );
+            } else {
+              await chatInstancesI.updateOne(
+                { _id: chatId, userId },
+                { $set: { 'inputValue': inputValue } }
+              );
+            }
+            res.status(200).json({ message: 'Input value set' });
+          }
+        }
       }
     } else {
       // Case 3: Document not found, create new one
       const newDocument = { _id: chatId, userId, userName, Score: 0, Trial: 1, inputValue };
-      await chatInstancesI.insertOne(newDocument);
+      await chatInstancesI.insertOne(newDocument); // Create in chatInstancesI collection
       res.status(200).json({ message: 'New document created' });
     }
   } catch (err) {
@@ -79,6 +96,10 @@ app.get('/submit-data', async (req, res) => {
     res.status(500).json({ message: 'Error processing request' });
   }
 });
+
+
+
+
 
 app.get('/check', async (req, res) => {
   try {
