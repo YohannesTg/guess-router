@@ -34,7 +34,7 @@ app.get('/opponent', async (req, res) => {
     const { chatId, userId } = req.query;
     const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: {$ne: userId } });
     if (existingChatInstancesDocument) {
-      res.status(200).json({ userName: existingChatInstancesIDocument.userName, Score: existingChatInstancesIDocument.Score, Trial: existingChatInstancesIDocument.Trial});
+      res.status(200).json({ userName: existingChatInstancesDocument.userName, Score: existingChatInstancesDocument.Score, Trial: existingChatInstancesDocument.Trial});
     } else {
       const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId:  {$ne: userId } });
       res.status(200).json({ userName: existingChatInstancesIDocument.userName, Score: existingChatInstancesIDocument.Score, Trial: existingChatInstancesIDocument.Trial });
