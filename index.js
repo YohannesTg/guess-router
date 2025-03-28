@@ -71,22 +71,13 @@ app.get('/submit-data', async (req, res) => {
         if (existingDoc._id === chatId && existingDoc.userId === userId) {
           // Update the correct collection based on where the document was found
           if (existingDoc.inputValue === '') {
-            let updatedDoc;
-            if (await chatInstances.findOne({ _id: chatId })) {
-              // Use findOneAndUpdate in chatInstances collection
-              updatedDoc = await chatInstances.findOneAndUpdate(
-                { _id: chatId, userId },
-                { $set: { 'inputValue': inputValue } },
-                { returnDocument: 'after' }
+              const collectionToUpdate = await chatInstances.findOne({ _id: chatId, userId }) ? chatInstances : chatInstancesI;
+              const updatedDoc = await collectionToUpdate.findOneAndUpdate(
+                  { _id: chatId, userId },
+                  { $set: { 'inputValue': inputValue } },
+                  { returnDocument: 'after' }
               );
-            } else {
-              // Use findOneAndUpdate in chatInstancesI collection
-              updatedDoc = await chatInstancesI.findOneAndUpdate(
-                { _id: chatId, userId },
-                { $set: { 'inputValue': inputValue } },
-                { returnDocument: 'after' }
-              );
-            }
+
             res.status(200).json({ message: 'Input value set', inputValue: updatedDoc.value.inputValue });
           }
         }
