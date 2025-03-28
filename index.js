@@ -71,7 +71,7 @@ app.get('/submit-data', async (req, res) => {
         if (existingDoc._id === chatId && existingDoc.userId === userId) {
           // Update the correct collection based on where the document was found
           if (existingDoc.inputValue === '') {
-            if (await chatInstances.findOne({ _id: chatId, userId })) {
+            if (await chatInstances.findOne({ _id: chatId })) {
               await chatInstances.updateOne(
                 { _id: chatId, userId },
                 { $set: { 'inputValue': inputValue } }
@@ -87,16 +87,27 @@ app.get('/submit-data', async (req, res) => {
         }
       }
     } else {
-      // Case 3: Document not found, create new one
+      // Case 3: Document not found, create new one in the correct collection
       const newDocument = { _id: chatId, userId, userName, Score: 0, Trial: 1, inputValue };
-      await chatInstancesI.insertOne(newDocument); // Create in chatInstancesI collection
-      res.status(200).json({ message: 'New document created' });
+      
+      // Check if document exists in chatInstances
+      const existingInChatInstances = await chatInstances.findOne({ _id: chatId });
+      if (existingInChatInstances) {
+        // If the document already exists in chatInstances, insert into chatInstancesI
+        await chatInstancesI.insertOne(newDocument);
+        res.status(200).json({ message: 'New document created in chatInstancesI' });
+      } else {
+        // If the document does not exist in chatInstances, insert into chatInstances
+        await chatInstances.insertOne(newDocument);
+        res.status(200).json({ message: 'New document created in chatInstances' });
+      }
     }
   } catch (err) {
     console.error('Error processing request:', err);
     res.status(500).json({ message: 'Error processing request' });
   }
 });
+
 
 
 
