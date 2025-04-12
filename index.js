@@ -196,6 +196,39 @@ res.status(200).json({ number, order, trial2, score1, score2 });
     await client.close();
   }
 });
+
+app.get('/exist', async (req, res) => {
+  try {
+    await client.connect();
+    const { chatId, userId } = req.query;
+    const chatInstancesCollection = client.db("TelegramGm").collection("chatInstances");
+    const chatInstancesICollection = client.db("TelegramGm").collection("chatInstancesI");
+
+    // Check both collections for non-empty input value
+    const query = { 
+      _id: chatId, 
+      userId: userId,
+      inputValue: { $exists: true, $ne: "" }
+    };
+
+    const existingDoc = await chatInstancesCollection.findOne(query) ||
+                       await chatInstancesICollection.findOne(query);
+
+    if (existingDoc && existingDoc.inputValue) {
+      // Return the input value directly if found
+      res.status(200).json({ inputValue: existingDoc.inputValue });
+    } else {
+      // Return empty response if not found
+      res.status(200).json({ exists: false });
+    }
+  } catch (err) {
+    console.error('Error checking input value:', err);
+    res.status(500).json({ message: 'Error checking input value' });
+  } finally {
+    await client.close();
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
