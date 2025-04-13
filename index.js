@@ -28,22 +28,45 @@ app.get('/opponent', async (req, res) => {
   try {
     await client.connect();
     await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    
     const chatInstancesCollection = client.db("TelegramGm").collection("chatInstances");
     const chatInstancesICollection = client.db("TelegramGm").collection("chatInstancesI");
     const { chatId, userId } = req.query;
-    const existingChatInstancesDocument = await chatInstancesCollection.findOne({ _id: chatId, userId: {$ne: userId } });
-    if (existingChatInstancesDocument) {
-      res.status(200).json({ userName: existingChatInstancesDocument.userName, Score: existingChatInstancesDocument.Score, Trial: existingChatInstancesDocument.Trial});
-    } else {
-      const existingChatInstancesIDocument = await chatInstancesICollection.findOne({ _id: chatId, userId:  {$ne: userId } });
-      res.status(200).json({ userName: existingChatInstancesIDocument.userName, Score: existingChatInstancesIDocument.Score, Trial: existingChatInstancesIDocument.Trial });
+
+    // Get current user's data (score1 and trial1)
+    const currentUserData = await chatInstancesCollection.findOne({ 
+      _id: chatId, 
+      userId: userId 
+    }) || await chatInstancesICollection.findOne({ 
+      _id: chatId, 
+      userId: userId 
+    });
+
+    // Get opponent's data (score2 and trial2)
+    const opponentData = await chatInstancesCollection.findOne({ 
+      _id: chatId, 
+      userId: { $ne: userId } 
+    }) || await chatInstancesICollection.findOne({ 
+      _id: chatId, 
+      userId: { $ne: userId } 
+    });
+
+    if (!opponentData) {
+      return res.status(404).json({ message: 'Game data not found' });
     }
+
+    res.status(200).json({
+      userName: opponentData.userName,
+      score1: currentUserData?.Score || 0,
+      score2: opponentData.Score,
+      trial1: currentUserData?.Trial || 0,
+      trial2: opponentData.Trial
+    });
+
   } catch (err) {
     console.error('Error processing request:', err);
     res.status(500).json({ message: 'Error processing request' });
   } finally {
-    // Ensures that the client will close when you finish/error
     await client.close();
   }
 });
