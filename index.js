@@ -184,8 +184,18 @@ if (order === 4 && number === 4) {
   await chatInstancesICollection.updateOne({ _id: chatId }, { $set: { Trial: 0 , inputValue: '' } });
 }
 
-let score1 = existingChatInstancesDocumentw ? existingChatInstancesDocumentw.Score: 0;
-let score2 = existingChatInstancesIDocumentw ? existingChatInstancesIDocumentw.Score: 0;
+let score1 = existingChatInstancesDocumentw ? existingChatInstancesDocumentw.Score: existingChatInstancesIDocumentw.Score;
+
+    const existingChatInstancesDocumentOpp = await chatInstancesCollection.findOne({ 
+  _id: chatId, 
+  userId: { $ne: userId } 
+});
+
+const existingChatInstancesIDocumentwOpp = await chatInstancesICollection.findOne({ 
+  _id: chatId, 
+  userId: { $ne: userId } 
+});
+let score2 = existingChatInstancesDocumentwOpp ? existingChatInstancesDocumentwOpp.Score: existingChatInstancesIDocumentwOpp.Score;
 let trial2 = existingChatInstancesDocument ?existingChatInstancesDocument.Trial: existingChatInstancesIDocument ? existingChatInstancesIDocument.Trial:0;
 res.status(200).json({ number, order, trial2, score1, score2 });
   } catch (err) {
