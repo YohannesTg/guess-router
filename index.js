@@ -219,8 +219,9 @@ const existingChatInstancesIDocumentwOpp = await chatInstancesICollection.findOn
   userId: { $ne: userId } 
 });
 let score2 = existingChatInstancesDocumentwOpp ? existingChatInstancesDocumentwOpp.Score: existingChatInstancesIDocumentwOpp.Score;
-let trial2 = existingChatInstancesDocument ?existingChatInstancesDocument.Trial: existingChatInstancesIDocument ? existingChatInstancesIDocument.Trial:0;
-res.status(200).json({ number, order, trial2, score1, score2 });
+let trial2 = existingChatInstancesDocumentwOpp ? existingChatInstancesDocumentwOpp.Trial: existingChatInstancesIDocumentwOpp.Trial;
+let trial1 = existingChatInstancesDocument ?existingChatInstancesDocument.Trial: existingChatInstancesIDocument.Trial;
+res.status(200).json({ number, order, trial1, score1, score2 });
   } catch (err) {
     console.error('Error processing request:', err);
     res.status(500).json({ message: 'Error processing request' });
