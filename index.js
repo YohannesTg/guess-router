@@ -186,7 +186,7 @@ if (order === 4 && number === 4) {
 
 let score1 = existingChatInstancesDocumentw ? existingChatInstancesDocumentw.Score: existingChatInstancesIDocumentw.Score;
 
-    const existingChatInstancesDocumentOpp = await chatInstancesCollection.findOne({ 
+    const existingChatInstancesDocumentwOpp = await chatInstancesCollection.findOne({ 
   _id: chatId, 
   userId: { $ne: userId } 
 });
